@@ -71,8 +71,7 @@ int main(int argc, char **argv)
         imu_data_pub(a, w, q);
       }
     }
-
-    usleep(10);
+    usleep(100);
   }
 
   ret = uart_close(fd);
