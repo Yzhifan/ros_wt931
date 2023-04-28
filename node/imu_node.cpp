@@ -10,17 +10,17 @@ void imu_data_pub(double *a, double *w, double *q)
 {
   imu_msg.header.stamp = ros::Time::now();
   imu_msg.header.seq = seq;
-  imu_msg.linear_acceleration.x = a[0];
+  imu_msg.linear_acceleration.x = a[0];//加速度
   imu_msg.linear_acceleration.y = a[1];
   imu_msg.linear_acceleration.z = a[2];
-  imu_msg.angular_velocity.x = w[0];
+  imu_msg.angular_velocity.x = w[0];//角速度
   imu_msg.angular_velocity.y = w[1];
   imu_msg.angular_velocity.z = w[2];
-  imu_msg.orientation.w = q[0];
+  imu_msg.orientation.w = q[0];//四元数
   imu_msg.orientation.x = q[1];
   imu_msg.orientation.y = q[2];
   imu_msg.orientation.z = q[3];
-  imu_pub.publish(imu_msg);
+  imu_pub.publish(imu_msg);//发布imu消息到imu_pub话题上
 
   seq++;
 }
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "imu_node");
   ros::NodeHandle n;
-  imu_pub = n.advertise<sensor_msgs::Imu>("/imu/data", 1);
+  imu_pub = n.advertise<sensor_msgs::Imu>("/imu/data", 1);//创建话题发布者 缓存长度1
   imu_msg.header.frame_id = "base_link";
 
   const char *port_name = "/dev/ttyUSB0";
@@ -67,8 +67,9 @@ int main(int argc, char **argv)
     {
       if (parse_data(r_buf[i]) == 9)
       {
-        get_data(a, w, q);
-        imu_data_pub(a, w, q);
+        get_data(a, w, q);//获得数据
+        imu_data_pub(a, w, q);//发布话题
+        // printf("run\n");
       }
     }
     usleep(100);

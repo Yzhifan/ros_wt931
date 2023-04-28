@@ -2,6 +2,7 @@
 
 int uart_open(int fd, const char *pathname)
 {
+  //在Linux中open()函数用来打开或创建一个文件，当打开文件失败时返回值为-1；成功则返回作为文件描述符(一个非负的数值)。
   fd = open(pathname, O_RDWR | O_NOCTTY);
   if (-1 == fd)
   {
@@ -9,8 +10,8 @@ int uart_open(int fd, const char *pathname)
     return (-1);
   }
   else
-    printf("Open %s successful\n", pathname);
-  if (isatty(STDIN_FILENO) == 0)
+    printf("Open %s successful\n", pathname);//isatty()函数：判断文件描述词是否是为终端机，如果为终端机则返回1, 否则返回0。
+  if (isatty(STDIN_FILENO) == 0)//STDIN_FILENO：接收键盘的输入
     printf("Standard input is not a terminal device\n");
   return fd;
 }
@@ -18,9 +19,9 @@ int uart_open(int fd, const char *pathname)
 int uart_set(int fd, int nSpeed, int nBits, char nEvent, int nStop)
 {
   struct termios newtio, oldtio;
-  if (tcgetattr(fd, &oldtio) != 0)
+  if (tcgetattr(fd, &oldtio) != 0)//tcgetattr()用于获取与终端相关的参数
   {
-    perror("Setup serial 1");
+    perror("Setup serial 1");//perror 向终端打印发生错误的相关原因和信息
     printf("tcgetattr(fd, &oldtio) -> %d\n", tcgetattr(fd, &oldtio));
     return -1;
   }
@@ -106,10 +107,10 @@ int uart_set(int fd, int nSpeed, int nBits, char nEvent, int nStop)
   return 0;
 }
 
-int uart_close(int fd)
+int uart_close(int fd)////参数fd为文件描述符
 {
   assert(fd);
-  close(fd);
+  close(fd);//关闭文件，一般与open()一起使用
 
   return 0;
 }
@@ -125,7 +126,7 @@ int recv_data(int fd, char *recv_buffer, int length)
   length = read(fd, recv_buffer, length);
   return length;
 }
-
+           //加速度  角速度  角度      磁场  四元素
 static double a[3], w[3], angle[3], h[3], q[4];
 
 int parse_data(char chr)
@@ -153,27 +154,27 @@ int parse_data(char chr)
   memcpy(&sData[0], &chrBuf[2], 8);
   switch (chrBuf[1])
   {
-  case 0x51:
+  case 0x51: //加速度
     index = 1;
     for (i = 0; i < 3; i++)
       a[i] = (double)sData[i] / 32768.0 * 16.0 * 9.81;
     break;
-  case 0x52:
+  case 0x52: //角速度
     index = 2;
     for (i = 0; i < 3; i++)
       w[i] = (double)sData[i] / 32768.0 * 2000.0 / 57.296;
     break;
-  case 0x53:
+  case 0x53: //角度
     index = 3;
     for (i = 0; i < 3; i++)
       angle[i] = (double)sData[i] / 32768.0 * 180.0 / 57.296;
     break;
-  case 0x54:
+  case 0x54: //磁场
     index = 4;
     for (i = 0; i < 3; i++)
       h[i] = (double)sData[i];
     break;
-  case 0x59:
+  case 0x59: //四元素
     index = 9;
     for (i = 0; i < 3; i++)
       q[i] = (double)sData[i] / 32768.0;
